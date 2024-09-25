@@ -1,7 +1,7 @@
 # Личный проект «Шесть городов»
 
-* Студент: [Владимир Карпович](https://up.htmlacademy.ru/univer-js3/5/user/2572057).
-* Наставник: `Неизвестно`.
+* Студент: [Владимир Карпович](https://up.htmlacademy.ru/univer-js3/5/user/2572057)
+* Наставник: [Александр Сударев](https://htmlacademy.ru/profile/id1152185)
 
 ---
 
