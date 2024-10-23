@@ -8,22 +8,25 @@ import FavoritesPage from './pages/Favorites';
 import OfferPage from './pages/Offer';
 import NotFoundPage from './pages/NotFound';
 
+import { Mocks } from './mocks';
+
 type AppProps = {
   offersCount: number;
+  mocks: Mocks;
 };
 
-const isAuthenticated = false; // login mock
+const isAuthenticated = true; // login mock
 
-const App: React.FC<AppProps> = ({offersCount}) => (
+const App: React.FC<AppProps> = ({offersCount, mocks}) => (
   <BrowserRouter>
     <Routes>
-      <Route path='/' element={<MainPage offersCount={offersCount}/>}/>
+      <Route path='/' element={<MainPage offersCount={offersCount} offers={mocks.offers}/>}/>
       <Route path="/login" element={<LoginPage />} />
       <Route
         path="/favorites"
         element={
           <PrivateRoute isAuthenticated={isAuthenticated}>
-            <FavoritesPage />
+            <FavoritesPage offers={mocks.offers} />
           </PrivateRoute>
         }
       />
