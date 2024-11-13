@@ -1,38 +1,55 @@
-import { useEffect } from 'react';
-import L from 'leaflet';
-
-import type {Offer} from '../../types';
+import { useRef, useEffect } from 'react';
+import { Icon, Marker, layerGroup } from 'leaflet';
+import useMap from '../../hooks/use-map';
+import type { Offer, City } from '../../types';
+import 'leaflet/dist/leaflet.css';
 
 type MapProps = {
+  city: City;
   offers: Offer[];
+  selectedOffer?: Offer;
 };
 
-const Map: React.FC<MapProps> = ({ offers }: MapProps) => {
+const defaultIcon = new Icon({
+  iconUrl: 'https://leafletjs.com/examples/custom-icons/leaf-green.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+});
+
+const selectedIcon = new Icon({
+  iconUrl: 'https://leafletjs.com/examples/custom-icons/leaf-red.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+});
+
+const Map: React.FC<MapProps> = ({ city, offers, selectedOffer }: MapProps) => {
+  const mapRef = useRef(null);
+  const map = useMap(mapRef, city);
+
   useEffect(() => {
-    const map = L.map('map', {
-      center: [52.35514938496378, 4.673877537499948],
-      zoom: 8,
-      scrollWheelZoom: false,
-    });
+    if (map) {
+      const markerLayer = layerGroup().addTo(map);
 
-    // добавление слоя карты от OpenStreetMap
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-    }).addTo(map);
+      offers.forEach((offer) => {
+        const marker = new Marker({
+          lat: offer.location.latitude,
+          lng: offer.location.longitude,
+        });
 
-    // добавление маркеров для предложений
-    offers.forEach((offer) => {
-      L.marker([offer.location.latitude, offer.location.longitude]).addTo(map)
-        .bindPopup(`Offer ID: ${offer.id}`);
-    });
+        marker
+          .setIcon(
+            selectedOffer && offer.id === selectedOffer.id ? selectedIcon : defaultIcon
+          )
+          .addTo(markerLayer);
+      });
 
-    return () => {
-      map.remove(); // очистка карты при размонтировании компонента
-    };
-  }, [offers]);
+      return () => {
+        map.removeLayer(markerLayer);
+      };
+    }
+  }, [map, offers, selectedOffer]);
 
-  // return <div id="map" className="cities__map" style={{ height: '100%', width: '100%' }} />;
-  return <div id="map" style={{ height: '100%', width: '100%' }} />;
+  return <div style={{ height: '500px' }} ref={mapRef}></div>;
 };
 
 export default Map;
