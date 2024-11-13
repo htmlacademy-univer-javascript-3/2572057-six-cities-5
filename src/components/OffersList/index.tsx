@@ -9,7 +9,7 @@ type OffersListProps = {
 
 const OffersList: React.FC<OffersListProps> = ({offers}) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [activeOffer, setActiveOffer] = useState<string | null>(null);
+  const [, setActiveOffer] = useState<string | null>(null);
 
   return (
     <div className="places__list">

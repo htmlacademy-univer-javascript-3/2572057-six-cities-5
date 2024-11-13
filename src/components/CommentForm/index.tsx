@@ -1,20 +1,36 @@
 import React, { useState } from 'react';
 
+const CommentRating = {
+  '5': 'perfect',
+  '4': 'good',
+  '3': 'not bad',
+  '2': 'badly',
+  '1': 'terribly'
+} as const;
+
 const CommentForm: React.FC = () => {
-  const [comment, setComment] = useState('');
-  const [rating, setRating] = useState(0);
+  type State = Partial<{
+    comment: string;
+    rating: number;
+  }>;
+
+  const [state, _setState] = useState({
+    comment: '',
+    rating: 0
+  });
+  const setState = (data: State) => _setState({...state, ...data});
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // eslint-disable-next-line no-console
-    console.log({ comment, rating });
+    console.log(state);
   };
 
   return (
     <form className="reviews__form form" onSubmit={handleSubmit}>
       <label className="reviews__label form__label" htmlFor="review">Your review</label>
       <div className="reviews__rating-form form__rating">
-        {[5, 4, 3, 2, 1].map((star) => (
+        {Object.keys(CommentRating).map((star) => (
           <React.Fragment key={star}>
             <input
               className="form__rating-input visually-hidden"
@@ -22,16 +38,12 @@ const CommentForm: React.FC = () => {
               value={star}
               id={`${star}-stars`}
               type="radio"
-              onChange={() => setRating(star)}
+              onChange={() => setState({rating: Number.parseInt(star, 10)})}
             />
             <label
               htmlFor={`${star}-stars`}
               className="reviews__rating-label form__rating-label"
-              title={
-                // иначе ругается eslint ???
-                // eslint-disable-next-line no-nested-ternary
-                star === 5 ? 'perfect' : star === 4 ? 'good' : star === 3 ? 'not bad' : star === 2 ? 'badly' : 'terribly'
-              }
+              title={CommentRating[star as keyof typeof CommentRating]}
             >
               <svg className="form__star-image" width="37" height="33">
                 <use xlinkHref="#icon-star"></use>
@@ -46,8 +58,8 @@ const CommentForm: React.FC = () => {
         id="review"
         name="review"
         placeholder="Tell how was your stay, what you like and what can be improved"
-        value={comment}
-        onChange={(e) => setComment(e.target.value)}
+        value={state.comment}
+        onChange={(e) => setState({comment: e.target.value})}
       />
 
       <div className="reviews__button-wrapper">
@@ -57,7 +69,7 @@ const CommentForm: React.FC = () => {
         <button
           className="reviews__submit form__submit button"
           type="submit"
-          disabled={comment.length < 50 || rating === 0}
+          disabled={state.comment.length < 50 || state.rating === 0}
         >
           Submit
         </button>
