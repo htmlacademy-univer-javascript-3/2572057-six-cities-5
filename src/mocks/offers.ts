@@ -22,7 +22,7 @@ export default [
     isFavorite: false,
     isPremium: true,
     rating: 4,
-    previewImage: 'https://url-to-image/apartment-01.jpg'
+    previewImage: 'img/apartment-01.jpg'
   },
   {
     id: '2b3c4d5e-2f7g-4b23-9cde-d5f6e6c23456',
@@ -45,7 +45,7 @@ export default [
     isFavorite: false,
     isPremium: false,
     rating: 4,
-    previewImage: 'https://url-to-image/room.jpg'
+    previewImage: 'img/apartment-02.jpg'
   },
   {
     id: '3c4d5e6f-3g8h-4c34-9def-e6f7e7c34567',
@@ -68,7 +68,7 @@ export default [
     isFavorite: false,
     isPremium: false,
     rating: 4,
-    previewImage: 'https://url-to-image/apartment-02.jpg'
+    previewImage: 'img/apartment-03.jpg',
   },
   {
     id: '4d5e6f7g-4h9i-4d45-9efg-f7g8f8c45678',
@@ -91,6 +91,6 @@ export default [
     isFavorite: false,
     isPremium: true,
     rating: 5,
-    previewImage: 'https://url-to-image/apartment-03.jpg'
+    previewImage: 'img/room.jpg',
   }
 ] as Offer[];

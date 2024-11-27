@@ -10,14 +10,19 @@ type MapProps = {
   selectedOffer?: Offer;
 };
 
-const defaultIcon = new Icon({
-  iconUrl: 'https://leafletjs.com/examples/custom-icons/leaf-green.png',
+const iconUrls = {
+  regular: 'img/pin.svg',
+  selected: 'img/pin-active.svg'
+} as const;
+
+const regularIcon = new Icon({
+  iconUrl: iconUrls.regular,
   iconSize: [25, 41],
   iconAnchor: [12, 41],
 });
 
 const selectedIcon = new Icon({
-  iconUrl: 'https://leafletjs.com/examples/custom-icons/leaf-red.png',
+  iconUrl: iconUrls.selected,
   iconSize: [25, 41],
   iconAnchor: [12, 41],
 });
@@ -38,7 +43,7 @@ const Map: React.FC<MapProps> = ({ city, offers, selectedOffer }: MapProps) => {
 
         marker
           .setIcon(
-            selectedOffer && offer.id === selectedOffer.id ? selectedIcon : defaultIcon
+            selectedOffer && offer.id === selectedOffer.id ? selectedIcon : regularIcon
           )
           .addTo(markerLayer);
       });
