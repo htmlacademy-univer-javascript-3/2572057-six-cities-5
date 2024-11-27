@@ -1,22 +1,27 @@
 // src/pages/Main/index.tsx
-import React from 'react';
+import React, {useEffect} from 'react';
 import OfferCard from '../../components/OfferCard';
 import Map from '../../components/Map';
 import type { Offer, Cities } from '../../types';
 import mocks from '../../mocks';
-import { useAppSelector } from '../../store/hooks';
-import { getCitySelector } from '../../store/selectors';
+import { useActions, useAppSelector } from '../../store/hooks.ts';
+import { getCitySelector, getOffersSelector } from '../../store/selectors';
 
 import './style.css';
+import { CitiesList } from '../../components/CitiesList';
 
 type MainPageProps = {
-  offersCount: number;
-  offers: Offer[];
   cities: Cities[];
 };
 
-const MainPage: React.FC<MainPageProps> = ({ offersCount, offers, cities }) => {
+const MainPage: React.FC<MainPageProps> = ({ cities }) => {
+  const cityOffers: Offer[] = useAppSelector(getOffersSelector);
   const currentCity = useAppSelector(getCitySelector);
+  const { getOffers } = useActions();
+
+  useEffect(() => {
+    getOffers(currentCity);
+  }, [getOffers, currentCity]);
 
   return (
     <div className="page page--gray page--main">
@@ -52,22 +57,14 @@ const MainPage: React.FC<MainPageProps> = ({ offersCount, offers, cities }) => {
         <h1 className="visually-hidden">Cities</h1>
         <div className="tabs">
           <section className="locations container">
-            <ul className="locations__list tabs__list">
-              {cities.map((city) => (
-                <li className="locations__item" key={city}>
-                  <a className={`locations__item-link tabs__item ${city === currentCity} ? 'tabs__item--active' : ''}`} href="#">
-                    <span>{city}</span>
-                  </a>
-                </li>
-              ))}
-            </ul>
+            <CitiesList citiesNames={cities} />
           </section>
         </div>
         <div className="cities">
           <div className="cities__places-container container">
             <section className="cities__places places">
               <h2 className="visually-hidden">Places</h2>
-              <b className="places__found">{offersCount} places to stay in {currentCity}</b>
+              <b className="places__found">{cityOffers.length} places to stay in {currentCity}</b>
               <form className="places__sorting" action="#" method="get">
                 <span className="places__sorting-caption">Sort by</span>
                 <span className="places__sorting-type" tabIndex={0}>
@@ -84,14 +81,14 @@ const MainPage: React.FC<MainPageProps> = ({ offersCount, offers, cities }) => {
                 </ul>
               </form>
               <div className="cities__places-list places__list tabs__content">
-                {offers.map((offer) => (
+                {cityOffers.map((offer) => (
                   <OfferCard key={offer.id} offer={offer} />
                 ))}
               </div>
             </section>
             <div className="cities__right-section">
               <section className="cities__map map">
-                <Map city={mocks.city} offers={offers} />
+                <Map city={mocks.city} offers={cityOffers} />
               </section>
             </div>
           </div>

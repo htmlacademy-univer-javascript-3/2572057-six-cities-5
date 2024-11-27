@@ -7,7 +7,7 @@ const Actions = {
   changeCity: 'change-city'
 } as const;
 
-export const getOffers = createAction(Actions.getOffers);
+export const getOffers = createAction<Cities>(Actions.getOffers);
 
 export const getFavoriteOffers = createAction(Actions.getFavoritesOffers);
 
