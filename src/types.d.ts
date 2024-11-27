@@ -30,3 +30,14 @@ export const Endpoints = {
   'offer/:id': '/offer/:id',
   '*': '*'
 } as const;
+
+export const CitiesEnum = {
+  'Paris': 'Paris',
+  'Amsterdam': 'Amsterdam',
+  'Cologne': 'Cologne',
+  'Brussels': 'Brussels',
+  'Hamburg': 'Hamburg',
+  'Dusseldorf': 'Dusseldorf'
+} as const;
+
+export type Cities = typeof CitiesEnum[keyof typeof CitiesEnum];

@@ -8,7 +8,7 @@ const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 
-const offersCount = 5;
+const offersCount = mocks.offers.length;
 
 root.render(
   <React.StrictMode>
