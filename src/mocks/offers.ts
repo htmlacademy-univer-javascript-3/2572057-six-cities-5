@@ -92,5 +92,28 @@ export default [
     isPremium: true,
     rating: 5,
     previewImage: 'img/room.jpg',
-  }
+  },
+  {
+    id: 'df3d0d1e-6adb-484f-b364-63ec2318faaa',
+    title: 'Paris appartment with Eifel tower view',
+    type: 'apartment',
+    price: 210,
+    city: {
+      name: 'Paris',
+      location: {
+        latitude: 48.856663,
+        longitude: 2.351556,
+        zoom: 8
+      }
+    },
+    location: {
+      latitude: 48.858939,
+      longitude: 2.284479,
+      zoom: 8
+    },
+    isFavorite: false,
+    isPremium: true,
+    rating: 5,
+    previewImage: 'img/paris-eifel.jpeg',
+  },
 ] as Offer[];

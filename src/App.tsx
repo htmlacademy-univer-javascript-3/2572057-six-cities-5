@@ -1,30 +1,32 @@
 import React from 'react';
 import { Provider } from 'react-redux';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import ScrollToTop from './components/ScrollToTop';
 import store from './store';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 import PrivateRoute from './components/PrivateRoute';
-import MainPage from './pages/Main';
-import LoginPage from './pages/Login';
 import FavoritesPage from './pages/Favorites';
-import OfferPage from './pages/Offer';
+import LoginPage from './pages/Login';
+import MainPage from './pages/Main';
 import NotFoundPage from './pages/NotFound';
+import OfferPage from './pages/Offer';
 
 import { Mocks } from './mocks';
-import { Endpoints, CitiesEnum } from './types.d';
+import { CitiesEnum, Endpoints } from './types.d';
 
 type AppProps = {
   offersCount: number;
   mocks: Mocks;
-};
+}
 
-const isAuthenticated = false; // login mock
+const isAuthenticated = true; // login mock
 
-const App: React.FC<AppProps> = ({offersCount, mocks}) => (
+const App: React.FC<AppProps> = ({ offersCount, mocks }) => (
   <Provider store={store}>
     <BrowserRouter>
+      <ScrollToTop />
       <Routes>
-        <Route path={Endpoints.root} element={<MainPage offersCount={offersCount} offers={mocks.offers} cities={Object.values(CitiesEnum)}/>}/>
+        <Route path={Endpoints.root} element={<MainPage offersCount={offersCount} offers={mocks.offers} cities={Object.values(CitiesEnum)} />} />
         <Route path={Endpoints.login} element={<LoginPage />} />
         <Route
           path={Endpoints.favorites}
