@@ -3,12 +3,12 @@ import CityTab from '../CityTab';
 import { getCitySelector } from '../../store/selectors';
 import type { Cities } from '../../types';
 
-type Props = {
+type CitiesListProps = {
   citiesNames: Cities[];
 };
 
 // eslint-disable-next-line
-export const CitiesList = ({ citiesNames }: Props) => {
+const CitiesList: React.FC<CitiesListProps> = ({ citiesNames }: CitiesListProps) => {
   const city = useAppSelector(getCitySelector);
   const { changeCity } = useActions();
 
@@ -36,3 +36,5 @@ export const CitiesList = ({ citiesNames }: Props) => {
     </div>
   );
 };
+
+export default CitiesList;

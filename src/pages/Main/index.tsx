@@ -8,7 +8,7 @@ import { getCitySelector, getOffersSelector } from '../../store/selectors';
 import type { Cities, Offer } from '../../types';
 
 import { NavLink } from 'react-router-dom';
-import { CitiesList } from '../../components/CitiesList';
+import CitiesList from '../../components/CitiesList';
 import SortingOptions from '../../components/SortingOptions';
 import './style.css';
 

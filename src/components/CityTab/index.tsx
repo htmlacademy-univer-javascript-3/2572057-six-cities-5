@@ -1,13 +1,13 @@
 import { Cities } from '../../types';
 import styles from './styles.module.css';
 
-type Props = {
+type CityTabProps = {
 	name: Cities;
 	isActive: boolean;
 	onChange: (city: Cities) => void;
 };
 
-const CityTab = ({ name, isActive, onChange }: Props) => {
+const CityTab: React.FC<CityTabProps> = ({ name, isActive, onChange }: CityTabProps) => {
   const handleTabClick = () => {
     onChange(name);
   };
