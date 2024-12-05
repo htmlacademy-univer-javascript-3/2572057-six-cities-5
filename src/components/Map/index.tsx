@@ -7,7 +7,7 @@ import 'leaflet/dist/leaflet.css';
 type MapProps = {
   city: City;
   offers: Offer[];
-  selectedOffer?: Offer;
+  selectedOffer: Offer | null;
 };
 
 const iconUrls = {

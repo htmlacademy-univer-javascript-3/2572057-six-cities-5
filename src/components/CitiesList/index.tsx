@@ -4,7 +4,7 @@ import { getCitySelector } from '../../store/selectors';
 import type { Cities } from '../../types';
 
 type Props = {
-	citiesNames: Cities[];
+  citiesNames: Cities[];
 };
 
 // eslint-disable-next-line
@@ -20,10 +20,16 @@ export const CitiesList = ({ citiesNames }: Props) => {
     <div className="tabs">
       <section className="locations container">
         <ul className="locations__list tabs__list">
-          {citiesNames && citiesNames.map((name) => {
+          {citiesNames.map((name) => {
             const isActive = name === city;
-
-            return <CityTab key={name} name={name} isActive={isActive} onChange={handleCityChange} />;
+            return (
+              <CityTab
+                key={name}
+                name={name}
+                isActive={isActive}
+                onChange={handleCityChange}
+              />
+            );
           })}
         </ul>
       </section>
