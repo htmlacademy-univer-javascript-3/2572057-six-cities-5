@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import type { Offer } from '../../types';
 
 type FavoritesPageProps = {
@@ -23,9 +23,9 @@ const FavoritesPage: React.FC<FavoritesPageProps> = ({ offers }) => {
         <div className="container">
           <div className="header__wrapper">
             <div className="header__left">
-              <Link className="header__logo-link" to="/">
+              <NavLink className="header__logo-link" to="/">
                 <img className="header__logo" src="img/logo.svg" alt="6 cities logo" width="81" height="41" />
-              </Link>
+              </NavLink>
             </div>
             <nav className="header__nav">
               <ul className="header__nav-list">

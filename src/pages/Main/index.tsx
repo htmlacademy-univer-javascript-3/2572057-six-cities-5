@@ -1,20 +1,22 @@
 // src/pages/Main/index.tsx
-import React, {useEffect} from 'react';
-import OfferCard from '../../components/OfferCard';
+import React, { useEffect, useState } from 'react';
 import Map from '../../components/Map';
-import type { Offer, Cities } from '../../types';
-import mocks from '../../mocks';
+import OfferCard from '../../components/OfferCard';
 import { useActions, useAppSelector } from '../../store/hooks.ts';
 import { getCitySelector, getOffersSelector } from '../../store/selectors';
+import type { Cities, Offer } from '../../types';
 
+import { NavLink } from 'react-router-dom';
+import CitiesList from '../../components/CitiesList';
+import SortingOptions from '../../components/SortingOptions';
 import './style.css';
-import { CitiesList } from '../../components/CitiesList';
 
 type MainPageProps = {
   cities: Cities[];
-};
+}
 
 const MainPage: React.FC<MainPageProps> = ({ cities }) => {
+  const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null);
   const cityOffers: Offer[] = useAppSelector(getOffersSelector);
   const currentCity = useAppSelector(getCitySelector);
   const { getOffers } = useActions();
@@ -29,9 +31,9 @@ const MainPage: React.FC<MainPageProps> = ({ cities }) => {
         <div className="container">
           <div className="header__wrapper">
             <div className="header__left">
-              <a className="header__logo-link header__logo-link--active" href="#">
+              <NavLink className="header__logo-link header__logo-link--active" to={'/'}>
                 <img className="header__logo" src="img/logo.svg" alt="6 cities logo" width="81" height="41" />
-              </a>
+              </NavLink>
             </div>
             <nav className="header__nav">
               <ul className="header__nav-list">
@@ -64,31 +66,23 @@ const MainPage: React.FC<MainPageProps> = ({ cities }) => {
           <div className="cities__places-container container">
             <section className="cities__places places">
               <h2 className="visually-hidden">Places</h2>
-              <b className="places__found">{cityOffers.length} places to stay in {currentCity}</b>
-              <form className="places__sorting" action="#" method="get">
-                <span className="places__sorting-caption">Sort by</span>
-                <span className="places__sorting-type" tabIndex={0}>
-                  Popular
-                  <svg className="places__sorting-arrow" width="7" height="4">
-                    <use xlinkHref="#icon-arrow-select"></use>
-                  </svg>
-                </span>
-                <ul className="places__options places__options--custom places__options--opened">
-                  <li className="places__option places__option--active" tabIndex={0}>Popular</li>
-                  <li className="places__option" tabIndex={0}>Price: low to high</li>
-                  <li className="places__option" tabIndex={0}>Price: high to low</li>
-                  <li className="places__option" tabIndex={0}>Top rated first</li>
-                </ul>
-              </form>
+              <b className="places__found">{cityOffers.length} places to stay in {currentCity.name}</b>
+              <SortingOptions />
               <div className="cities__places-list places__list tabs__content">
                 {cityOffers.map((offer) => (
-                  <OfferCard key={offer.id} offer={offer} />
+                  <div
+                    key={offer.id}
+                    onMouseEnter={() => setSelectedOffer(offer)}
+                    onMouseLeave={() => setSelectedOffer(null)}
+                  >
+                    <OfferCard offer={offer} />
+                  </div>
                 ))}
               </div>
             </section>
             <div className="cities__right-section">
               <section className="cities__map map">
-                <Map city={mocks.city} offers={cityOffers} />
+                <Map city={currentCity} offers={cityOffers} selectedOffer={selectedOffer} />
               </section>
             </div>
           </div>
