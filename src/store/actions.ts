@@ -1,6 +1,6 @@
 import { createAction } from '@reduxjs/toolkit';
 import { SortType } from '../components/SortingOptions';
-import { Cities } from '../types';
+import { City } from '../types';
 
 const Actions = {
   getOffers: 'get-offers',
@@ -9,10 +9,10 @@ const Actions = {
   sortOffers: 'sort-offers',
 } as const;
 
-export const getOffers = createAction<Cities>(Actions.getOffers);
+export const getOffers = createAction<City>(Actions.getOffers);
 
 export const getFavoriteOffers = createAction(Actions.getFavoritesOffers);
 
-export const changeCity = createAction<Cities>(Actions.changeCity);
+export const changeCity = createAction<City>(Actions.changeCity);
 
 export const sortOffers = createAction<SortType>(Actions.sortOffers);

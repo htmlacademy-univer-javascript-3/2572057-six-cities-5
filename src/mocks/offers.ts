@@ -11,7 +11,7 @@ export default [
       location: {
         latitude: 52.35514938496378,
         longitude: 4.673877537499948,
-        zoom: 8
+        zoom: 10
       }
     },
     location: {
@@ -34,7 +34,7 @@ export default [
       location: {
         latitude: 52.35514938496378,
         longitude: 4.673877537499948,
-        zoom: 8
+        zoom: 10
       }
     },
     location: {
@@ -57,7 +57,7 @@ export default [
       location: {
         latitude: 52.35514938496378,
         longitude: 4.673877537499948,
-        zoom: 8
+        zoom: 10
       }
     },
     location: {
@@ -80,7 +80,7 @@ export default [
       location: {
         latitude: 52.35514938496378,
         longitude: 4.673877537499948,
-        zoom: 8
+        zoom: 10
       }
     },
     location: {
@@ -103,7 +103,7 @@ export default [
       location: {
         latitude: 48.856663,
         longitude: 2.351556,
-        zoom: 8
+        zoom: 11
       }
     },
     location: {

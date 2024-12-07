@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { useActions } from '../../store/hooks';
 
 export enum SortType {
-    Popular = 'Popular',
-    PriceLowToHigh = 'Price: low to high',
-    PriceHighToLow = 'Price: high to low',
-    TopRatedFirst = 'Top rated first'
+  Popular = 'Popular',
+  PriceLowToHigh = 'Price: low to high',
+  PriceHighToLow = 'Price: high to low',
+  TopRatedFirst = 'Top rated first'
 }
 
 const SortingOptions: React.FC = () => {
@@ -21,7 +21,7 @@ const SortingOptions: React.FC = () => {
 
   return (
     <form className="places__sorting" action="#" method="get">
-      <span className="places__sorting-caption">Sort by</span>
+      <span className="places__sorting-caption" style={{ marginRight: '4px' }}>Sort by</span>
       <span
         className="places__sorting-type"
         tabIndex={0}

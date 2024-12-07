@@ -1,18 +1,19 @@
 import { createReducer } from '@reduxjs/toolkit';
 import { SortType } from '../components/SortingOptions';
 import mocks from '../mocks';
-import { Cities, CitiesEnum, Offer } from '../types.d';
+import { CITIES } from '../mocks/city';
+import { City, Offer } from '../types.d';
 import * as Actions from './actions';
 
 type State = {
-  city: Cities;
+  city: City;
   offers: Offer[];
   favoriteOffers: Offer[];
   sortType: SortType;
 };
 
 const initialState: State = {
-  city: CitiesEnum.Paris,
+  city: CITIES.Paris,
   offers: [],
   favoriteOffers: [],
   sortType: SortType.Popular,
@@ -35,7 +36,7 @@ const reducer = createReducer(initialState, (builder) => {
   builder
     .addCase(Actions.getOffers, (state, action) => {
       const filteredOffers = mocks.offers.filter(
-        (offer) => offer.city.name === action.payload
+        (offer) => offer.city.name === action.payload.name
       );
       state.offers = sortOffersByType(filteredOffers, state.sortType);
     })

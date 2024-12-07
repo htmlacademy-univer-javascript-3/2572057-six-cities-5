@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useParams } from 'react-router-dom';
 import CommentForm from '../../components/CommentForm';
 import Map from '../../components/Map';
 import OffersList from '../../components/OffersList';
@@ -7,12 +7,25 @@ import ReviewsList from '../../components/ReviewsList';
 import mocks from '../../mocks';
 import reviews from '../../mocks/reviews';
 
-const nearbyOffers = mocks.offers.slice(0, 3);
-
 const OfferPage: React.FC = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  const { id } = useParams();
+  const currentOffer = mocks.offers.find((offer) => offer.id === id);
+
+  if (!currentOffer) {
+    return <div>Offer not found</div>;
+  }
+
+  // Get nearby offers from the same city
+  const nearbyOffers = mocks.offers
+    .filter((offer) =>
+      offer.city.name === currentOffer.city.name &&
+      offer.id !== currentOffer.id
+    )
+    .slice(0, 3);
 
   return (
     <div className="page">
@@ -49,7 +62,7 @@ const OfferPage: React.FC = () => {
           <div className="offer__gallery-container container">
             <div className="offer__gallery">
               <div className="offer__image-wrapper">
-                <img className="offer__image" src="img/room.jpg" alt="Photo studio" />
+                <img className="offer__image" src={currentOffer.previewImage} alt={currentOffer.title} />
               </div>
               <div className="offer__image-wrapper">
                 <img className="offer__image" src="img/apartment-01.jpg" alt="Photo studio" />
@@ -71,11 +84,13 @@ const OfferPage: React.FC = () => {
 
           <div className="offer__container container">
             <div className="offer__wrapper">
-              <div className="offer__mark">
-                <span>Premium</span>
-              </div>
+              {currentOffer.isPremium && (
+                <div className="offer__mark">
+                  <span>Premium</span>
+                </div>
+              )}
               <div className="offer__name-wrapper">
-                <h1 className="offer__name">Beautiful &amp; luxurious studio at great location</h1>
+                <h1 className="offer__name">{currentOffer.title}</h1>
                 <button className="offer__bookmark-button button" type="button">
                   <svg className="offer__bookmark-icon" width="31" height="33">
                     <use xlinkHref="#icon-bookmark"></use>
@@ -85,18 +100,18 @@ const OfferPage: React.FC = () => {
               </div>
               <div className="offer__rating rating">
                 <div className="offer__stars rating__stars">
-                  <span style={{ width: '80%' }}></span>
+                  <span style={{ width: `${(currentOffer.rating / 5) * 100}%` }}></span>
                   <span className="visually-hidden">Rating</span>
                 </div>
-                <span className="offer__rating-value rating__value">4.8</span>
+                <span className="offer__rating-value rating__value">{currentOffer.rating}</span>
               </div>
               <ul className="offer__features">
-                <li className="offer__feature offer__feature--entire">Apartment</li>
+                <li className="offer__feature offer__feature--entire">{currentOffer.type}</li>
                 <li className="offer__feature offer__feature--bedrooms">3 Bedrooms</li>
                 <li className="offer__feature offer__feature--adults">Max 4 adults</li>
               </ul>
               <div className="offer__price">
-                <b className="offer__price-value">&euro;120</b>
+                <b className="offer__price-value">&euro;{currentOffer.price}</b>
                 <span className="offer__price-text">&nbsp;night</span>
               </div>
               <div className="offer__inside">
@@ -145,7 +160,11 @@ const OfferPage: React.FC = () => {
             </div>
           </div>
           <section className="map container" style={{ margin: '30px auto' }}>
-            <Map city={mocks.city} offers={nearbyOffers} selectedOffer={nearbyOffers[0]} />
+            <Map
+              city={currentOffer.city}
+              offers={[currentOffer, ...nearbyOffers]}
+              selectedOffer={currentOffer}
+            />
           </section>
         </section>
 

@@ -1,3 +1,4 @@
+import { CITIES } from '../../mocks/city';
 import { useActions, useAppSelector } from '../../store/hooks';
 import CityTab from '../CityTab';
 import { getCitySelector } from '../../store/selectors';
@@ -7,13 +8,13 @@ type CitiesListProps = {
   citiesNames: Cities[];
 };
 
-// eslint-disable-next-line
 const CitiesList: React.FC<CitiesListProps> = ({ citiesNames }: CitiesListProps) => {
-  const city = useAppSelector(getCitySelector);
+  const currentCity = useAppSelector(getCitySelector);
   const { changeCity } = useActions();
 
   const handleCityChange = (cityName: Cities) => {
-    changeCity(cityName);
+    const newCity = CITIES[cityName as keyof typeof CITIES];
+    changeCity(newCity);
   };
 
   return (
@@ -21,7 +22,7 @@ const CitiesList: React.FC<CitiesListProps> = ({ citiesNames }: CitiesListProps)
       <section className="locations container">
         <ul className="locations__list tabs__list">
           {citiesNames.map((name) => {
-            const isActive = name === city;
+            const isActive = name === currentCity.name;
             return (
               <CityTab
                 key={name}

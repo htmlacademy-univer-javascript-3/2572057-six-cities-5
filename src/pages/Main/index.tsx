@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from 'react';
 import Map from '../../components/Map';
 import OfferCard from '../../components/OfferCard';
-import mocks from '../../mocks';
 import { useActions, useAppSelector } from '../../store/hooks.ts';
 import { getCitySelector, getOffersSelector } from '../../store/selectors';
 import type { Cities, Offer } from '../../types';
@@ -67,7 +66,7 @@ const MainPage: React.FC<MainPageProps> = ({ cities }) => {
           <div className="cities__places-container container">
             <section className="cities__places places">
               <h2 className="visually-hidden">Places</h2>
-              <b className="places__found">{cityOffers.length} places to stay in {currentCity}</b>
+              <b className="places__found">{cityOffers.length} places to stay in {currentCity.name}</b>
               <SortingOptions />
               <div className="cities__places-list places__list tabs__content">
                 {cityOffers.map((offer) => (
@@ -83,7 +82,7 @@ const MainPage: React.FC<MainPageProps> = ({ cities }) => {
             </section>
             <div className="cities__right-section">
               <section className="cities__map map">
-                <Map city={mocks.city} offers={cityOffers} selectedOffer={selectedOffer} />
+                <Map city={currentCity} offers={cityOffers} selectedOffer={selectedOffer} />
               </section>
             </div>
           </div>

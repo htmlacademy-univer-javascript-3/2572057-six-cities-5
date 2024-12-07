@@ -33,6 +33,14 @@ const Map: React.FC<MapProps> = ({ city, offers, selectedOffer }: MapProps) => {
 
   useEffect(() => {
     if (map) {
+      map.setView(
+        {
+          lat: city.location.latitude,
+          lng: city.location.longitude
+        },
+        city.location.zoom
+      );
+
       const markerLayer = layerGroup().addTo(map);
 
       offers.forEach((offer) => {
@@ -52,7 +60,7 @@ const Map: React.FC<MapProps> = ({ city, offers, selectedOffer }: MapProps) => {
         map.removeLayer(markerLayer);
       };
     }
-  }, [map, offers, selectedOffer]);
+  }, [map, offers, selectedOffer, city]);
 
   return <div style={{ height: '500px' }} ref={mapRef}></div>;
 };
