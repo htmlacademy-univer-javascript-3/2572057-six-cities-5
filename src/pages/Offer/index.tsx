@@ -1,29 +1,54 @@
 import React, { useEffect } from 'react';
-import { NavLink, useParams } from 'react-router-dom';
+import { NavLink, useNavigate, useParams } from 'react-router-dom';
 import CommentForm from '../../components/CommentForm';
 import Map from '../../components/Map';
 import OffersList from '../../components/OffersList';
 import ReviewsList from '../../components/ReviewsList';
-import mocks from '../../mocks';
+import Spinner from '../../components/Spinner';
 import reviews from '../../mocks/reviews';
+import { useActions, useAppSelector } from '../../store/hooks';
+import {
+  getAllOffersSelector,
+  getCurrentOfferSelector,
+  getOfferErrorSelector,
+  getOfferLoadingSelector,
+} from '../../store/selectors';
+import type { Offer } from '../../types.d';
 
 const OfferPage: React.FC = () => {
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
-
   const { id } = useParams();
-  const currentOffer = mocks.offers.find((offer) => offer.id === id);
+  const navigate = useNavigate();
+  const currentOffer = useAppSelector(getCurrentOfferSelector);
+  const allOffers = useAppSelector(getAllOffersSelector);
+  const isLoading = useAppSelector(getOfferLoadingSelector);
+  const error = useAppSelector(getOfferErrorSelector);
+  const { fetchOffer } = useActions();
+
+  useEffect(() => {
+    if (id) {
+      fetchOffer(id);
+    }
+  }, [id, fetchOffer]);
+
+  useEffect(() => {
+    if (error) {
+      navigate('/404');
+    }
+  }, [error, navigate]);
+
+  if (isLoading) {
+    return <Spinner />;
+  }
 
   if (!currentOffer) {
-    return <div>Offer not found</div>;
+    return null;
   }
 
   // Get nearby offers from the same city
-  const nearbyOffers = mocks.offers
-    .filter((offer) =>
-      offer.city.name === currentOffer.city.name &&
-      offer.id !== currentOffer.id
+  const nearbyOffers: Offer[] = allOffers
+    .filter(
+      (offer) =>
+        offer.city.name === currentOffer.city.name && offer.id !== currentOffer.id
     )
     .slice(0, 3);
 
