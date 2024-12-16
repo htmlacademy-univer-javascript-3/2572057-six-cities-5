@@ -13,6 +13,7 @@ import {
   getOfferErrorSelector,
   getOfferLoadingSelector,
 } from '../../store/selectors';
+import type { Offer } from '../../types.d';
 
 const OfferPage: React.FC = () => {
   const { id } = useParams();
@@ -44,7 +45,7 @@ const OfferPage: React.FC = () => {
   }
 
   // Get nearby offers from the same city
-  const nearbyOffers = allOffers
+  const nearbyOffers: Offer[] = allOffers
     .filter(
       (offer) =>
         offer.city.name === currentOffer.city.name && offer.id !== currentOffer.id

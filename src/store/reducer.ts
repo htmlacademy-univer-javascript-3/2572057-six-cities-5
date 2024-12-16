@@ -2,6 +2,7 @@ import { createReducer } from '@reduxjs/toolkit';
 import { SortType } from '../components/SortingOptions';
 import { CITIES } from '../mocks/city';
 import { City, Offer } from '../types.d';
+import { AuthorizationStatus, UserData } from '../types/auth';
 import * as Actions from './actions';
 
 type State = {
@@ -15,6 +16,8 @@ type State = {
   currentOffer: Offer | null;
   isOfferLoading: boolean;
   offerError: string | null;
+  authorizationStatus: AuthorizationStatus;
+  user: UserData | null;
 };
 
 const initialState: State = {
@@ -28,6 +31,8 @@ const initialState: State = {
   currentOffer: null,
   isOfferLoading: false,
   offerError: null,
+  authorizationStatus: AuthorizationStatus.Unknown,
+  user: null,
 };
 
 const sortOffersByType = (offers: Offer[], sortType: SortType): Offer[] => {
@@ -86,6 +91,16 @@ const reducer = createReducer(initialState, (builder) => {
     .addCase(Actions.fetchOfferFailure, (state, action) => {
       state.isOfferLoading = false;
       state.offerError = action.payload;
+    })
+    .addCase(Actions.requireAuthorization, (state, action) => {
+      state.authorizationStatus = action.payload;
+    })
+    .addCase(Actions.setUser, (state, action) => {
+      state.user = action.payload;
+    })
+    .addCase(Actions.logout, (state) => {
+      state.user = null;
+      state.authorizationStatus = AuthorizationStatus.NoAuth;
     });
 });
 

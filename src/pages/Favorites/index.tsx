@@ -1,13 +1,13 @@
 import React from 'react';
 import { Link, NavLink } from 'react-router-dom';
+import { useAppSelector } from '../../store/hooks';
+import { getAllOffersSelector } from '../../store/selectors';
 import type { Offer } from '../../types';
 
-type FavoritesPageProps = {
-  offers: Offer[];
-}
+const FavoritesPage: React.FC = () => {
+  const offers = useAppSelector(getAllOffersSelector);
 
-const FavoritesPage: React.FC<FavoritesPageProps> = ({ offers }) => {
-  // Группируем предложения по городам
+  // Group offers by city
   const offersByCity = offers.reduce<{ [key: string]: Offer[] }>((acc, offer) => {
     const cityName = offer.city.name;
     if (!acc[cityName]) {

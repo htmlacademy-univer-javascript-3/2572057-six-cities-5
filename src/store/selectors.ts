@@ -18,3 +18,6 @@ export const getOfferErrorSelector = (state: RootState) =>
   getStateSelector(state).offerError;
 export const getAllOffersSelector = (state: RootState) =>
   getStateSelector(state).allOffers;
+export const getAuthorizationStatus = (state: RootState) =>
+  getStateSelector(state).authorizationStatus;
+export const getUser = (state: RootState) => getStateSelector(state).user;
