@@ -14,7 +14,7 @@ const Header: React.FC = () => {
     try {
       logoutAction();
     } catch (error) {
-      // console.error('Logout failed:', error);
+    //   console.error('Logout failed:', error);
     }
   };
 
@@ -33,6 +33,12 @@ const Header: React.FC = () => {
               </span>
             </Link>
           </li>
+          <Link
+            className="header__nav-link"
+            to={Endpoints.favorites}
+          >
+            <span className="header__favorite-count" style={{ marginLeft: '0px', marginRight: '25px' }}>3</span>
+          </Link>
           <li className="header__nav-item">
             <Link
               className="header__nav-link"
@@ -53,6 +59,7 @@ const Header: React.FC = () => {
           to={Endpoints.login}
         >
           <div className="header__avatar-wrapper user__avatar-wrapper" />
+
           <span className="header__login">Sign in</span>
         </Link>
       </li>

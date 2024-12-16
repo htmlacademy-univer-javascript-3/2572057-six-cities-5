@@ -3,6 +3,7 @@ import { SortType } from '../components/SortingOptions';
 import { CITIES } from '../mocks/city';
 import { City, Offer } from '../types.d';
 import { AuthorizationStatus, UserData } from '../types/auth';
+import type { Comment } from '../types/comment';
 import * as Actions from './actions';
 
 type State = {
@@ -18,6 +19,9 @@ type State = {
   offerError: string | null;
   authorizationStatus: AuthorizationStatus;
   user: UserData | null;
+  comments: Comment[];
+  isCommentsLoading: boolean;
+  commentsError: string | null;
 };
 
 const initialState: State = {
@@ -33,6 +37,9 @@ const initialState: State = {
   offerError: null,
   authorizationStatus: AuthorizationStatus.Unknown,
   user: null,
+  comments: [],
+  isCommentsLoading: false,
+  commentsError: null,
 };
 
 const sortOffersByType = (offers: Offer[], sortType: SortType): Offer[] => {
@@ -101,6 +108,18 @@ const reducer = createReducer(initialState, (builder) => {
     .addCase(Actions.logout, (state) => {
       state.user = null;
       state.authorizationStatus = AuthorizationStatus.NoAuth;
+    })
+    .addCase(Actions.fetchCommentsStart, (state) => {
+      state.isCommentsLoading = true;
+      state.commentsError = null;
+    })
+    .addCase(Actions.fetchCommentsSuccess, (state, action) => {
+      state.comments = action.payload;
+      state.isCommentsLoading = false;
+    })
+    .addCase(Actions.fetchCommentsFailure, (state, action) => {
+      state.isCommentsLoading = false;
+      state.commentsError = action.payload;
     });
 });
 

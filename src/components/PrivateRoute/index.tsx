@@ -12,10 +12,15 @@ type PrivateRouteProps = {
 const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
   const authorizationStatus = useAppSelector(getAuthorizationStatus);
 
+  // Wait until we know the auth status for sure
+  if (authorizationStatus === AuthorizationStatus.Unknown) {
+    return null;
+  }
+
   return authorizationStatus === AuthorizationStatus.Auth ? (
     children
   ) : (
-    <Navigate to={Endpoints.login} />
+    <Navigate to={Endpoints.root} />
   );
 };
 

@@ -4,6 +4,7 @@ import { SortType } from '../components/SortingOptions';
 import { dropToken, saveToken } from '../services/token';
 import { City, Offer } from '../types';
 import { AuthData, AuthorizationStatus, UserData } from '../types/auth';
+import type { Comment, CommentData } from '../types/comment';
 import { AppDispatch, RootState } from './types';
 
 const Actions = {
@@ -18,6 +19,12 @@ const Actions = {
   requireAuthorization: 'user/requireAuthorization',
   setUser: 'user/setUser',
   logout: 'user/logout',
+  fetchCommentsStart: 'comments/fetchStart',
+  fetchCommentsSuccess: 'comments/fetchSuccess',
+  fetchCommentsFailure: 'comments/fetchFailure',
+  postCommentStart: 'comments/postStart',
+  postCommentSuccess: 'comments/postSuccess',
+  postCommentFailure: 'comments/postFailure',
 } as const;
 
 export const fetchOffersStart = createAction(Actions.fetchOffersStart);
@@ -39,6 +46,13 @@ export const requireAuthorization = createAction<AuthorizationStatus>(
 );
 export const setUser = createAction<UserData>(Actions.setUser);
 export const logout = createAction(Actions.logout);
+export const fetchCommentsStart = createAction(Actions.fetchCommentsStart);
+export const fetchCommentsSuccess = createAction<Comment[]>(
+  Actions.fetchCommentsSuccess
+);
+export const fetchCommentsFailure = createAction<string>(
+  Actions.fetchCommentsFailure
+);
 
 export const fetchOffers = createAsyncThunk<
   void,
@@ -76,11 +90,10 @@ export const fetchOffer = createAsyncThunk<
     const { data } = await api.get<Offer>(`/offers/${id}`);
     dispatch(fetchOfferSuccess(data));
   } catch (error) {
-    dispatch(
-      fetchOfferFailure(
-        error instanceof Error ? error.message : 'Failed to load offer'
-      )
-    );
+    const message =
+      error instanceof Error ? error.message : 'Failed to load offer';
+    dispatch(fetchOfferFailure(message));
+    throw error;
   }
 });
 
@@ -146,3 +159,50 @@ export const logoutAction = createAsyncThunk<
     throw error;
   }
 });
+
+export const fetchComments = createAsyncThunk<
+  void,
+  string,
+  {
+    dispatch: AppDispatch;
+    state: RootState;
+    extra: AxiosInstance;
+  }
+>('comments/fetch', async (offerId, { dispatch, extra: api }) => {
+  try {
+    dispatch(fetchCommentsStart());
+    const { data } = await api.get<Comment[]>(`/comments/${offerId}`);
+    dispatch(fetchCommentsSuccess(data));
+  } catch (error) {
+    dispatch(
+      fetchCommentsFailure(
+        error instanceof Error ? error.message : 'Failed to load comments'
+      )
+    );
+  }
+});
+
+export const postComment = createAsyncThunk<
+  void,
+  { offerId: string; commentData: CommentData },
+  {
+    dispatch: AppDispatch;
+    state: RootState;
+    extra: AxiosInstance;
+  }
+>(
+  'comments/post',
+  async ({ offerId, commentData }, { dispatch, extra: api }) => {
+    try {
+      await api.post<Comment[]>(`/comments/${offerId}`, {
+        comment: commentData.comment,
+        rating: commentData.rating,
+      });
+      const { data } = await api.get<Comment[]>(`/comments/${offerId}`);
+      dispatch(fetchCommentsSuccess(data));
+    } catch (error) {
+      console.error('Failed to post comment:', error);
+      throw error;
+    }
+  }
+);

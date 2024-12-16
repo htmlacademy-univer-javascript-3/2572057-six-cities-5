@@ -1,11 +1,12 @@
+import axios from 'axios';
 import React, { useEffect } from 'react';
-import { NavLink, useNavigate, useParams } from 'react-router-dom';
+import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import CommentForm from '../../components/CommentForm';
+import Header from '../../components/Header';
 import Map from '../../components/Map';
 import OffersList from '../../components/OffersList';
 import ReviewsList from '../../components/ReviewsList';
 import Spinner from '../../components/Spinner';
-import reviews from '../../mocks/reviews';
 import { useActions, useAppSelector } from '../../store/hooks';
 import {
   getAllOffersSelector,
@@ -22,19 +23,22 @@ const OfferPage: React.FC = () => {
   const allOffers = useAppSelector(getAllOffersSelector);
   const isLoading = useAppSelector(getOfferLoadingSelector);
   const error = useAppSelector(getOfferErrorSelector);
-  const { fetchOffer } = useActions();
+  const { fetchOffer, fetchComments } = useActions();
 
   useEffect(() => {
     if (id) {
-      fetchOffer(id);
+      Promise.all([
+        fetchOffer(id),
+        fetchComments(id)
+      ]).catch((err) => {
+        if (axios.isAxiosError(err) && err.response?.status === 404) {
+          navigate('/404');
+        } else {
+          // console.error('Error fetching offer:', err);
+        }
+      });
     }
-  }, [id, fetchOffer]);
-
-  useEffect(() => {
-    if (error) {
-      navigate('/404');
-    }
-  }, [error, navigate]);
+  }, [id, fetchOffer, fetchComments, navigate]);
 
   if (isLoading) {
     return <Spinner />;
@@ -52,58 +56,23 @@ const OfferPage: React.FC = () => {
     )
     .slice(0, 3);
 
+  if (error) {
+    return <Navigate to="/404" />;
+  }
+
   return (
     <div className="page">
-      <header className="header">
-        <div className="container">
-          <div className="header__wrapper">
-            <div className="header__left">
-              <NavLink className="header__logo-link" to={'/'}>
-                <img className="header__logo" src="img/logo.svg" alt="6 cities logo" width="81" height="41" />
-              </NavLink>
-            </div>
-            <nav className="header__nav">
-              <ul className="header__nav-list">
-                <li className="header__nav-item user">
-                  <a className="header__nav-link header__nav-link--profile" href="#">
-                    <div className="header__avatar-wrapper user__avatar-wrapper"></div>
-                    <span className="header__user-name user__name">Oliver.conner@gmail.com</span>
-                    <span className="header__favorite-count">3</span>
-                  </a>
-                </li>
-                <li className="header__nav-item">
-                  <a className="header__nav-link" href="#">
-                    <span className="header__signout">Sign out</span>
-                  </a>
-                </li>
-              </ul>
-            </nav>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       <main className="page__main page__main--offer">
         <section className="offer">
           <div className="offer__gallery-container container">
             <div className="offer__gallery">
-              <div className="offer__image-wrapper">
-                <img className="offer__image" src={currentOffer.previewImage} alt={currentOffer.title} />
-              </div>
-              <div className="offer__image-wrapper">
-                <img className="offer__image" src="img/apartment-01.jpg" alt="Photo studio" />
-              </div>
-              <div className="offer__image-wrapper">
-                <img className="offer__image" src="img/apartment-02.jpg" alt="Photo studio" />
-              </div>
-              <div className="offer__image-wrapper">
-                <img className="offer__image" src="img/apartment-03.jpg" alt="Photo studio" />
-              </div>
-              <div className="offer__image-wrapper">
-                <img className="offer__image" src="img/studio-01.jpg" alt="Photo studio" />
-              </div>
-              <div className="offer__image-wrapper">
-                <img className="offer__image" src="img/apartment-01.jpg" alt="Photo studio" />
-              </div>
+              {currentOffer.images?.map((image, index) => (
+                <div key={index} className="offer__image-wrapper">
+                  <img className="offer__image" src={image} alt={`Photo ${index + 1}`} />
+                </div>
+              ))}
             </div>
           </div>
 
@@ -142,16 +111,9 @@ const OfferPage: React.FC = () => {
               <div className="offer__inside">
                 <h2 className="offer__inside-title">What&apos;s inside</h2>
                 <ul className="offer__inside-list">
-                  <li className="offer__inside-item">Wi-Fi</li>
-                  <li className="offer__inside-item">Washing machine</li>
-                  <li className="offer__inside-item">Towels</li>
-                  <li className="offer__inside-item">Heating</li>
-                  <li className="offer__inside-item">Coffee machine</li>
-                  <li className="offer__inside-item">Baby seat</li>
-                  <li className="offer__inside-item">Kitchen</li>
-                  <li className="offer__inside-item">Dishwasher</li>
-                  <li className="offer__inside-item">Cabel TV</li>
-                  <li className="offer__inside-item">Fridge</li>
+                  {currentOffer.goods?.map((item, index) => (
+                    <li key={index} className="offer__inside-item">{item}</li>
+                  ))}
                 </ul>
               </div>
               <div className="offer__host">
@@ -180,8 +142,8 @@ const OfferPage: React.FC = () => {
                   </p>
                 </div>
               </div>
-              <ReviewsList reviews={reviews} />
-              <CommentForm />
+              <ReviewsList />
+              <CommentForm offerId={id ?? ''} />
             </div>
           </div>
           <section className="map container" style={{ margin: '30px auto' }}>

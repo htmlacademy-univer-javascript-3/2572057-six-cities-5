@@ -21,6 +21,7 @@ const LoginPage: React.FC = () => {
           password: passwordRef.current.value,
         });
       } catch (error) {
+        // Handle error
         // console.error('Login failed:', error);
       }
     }

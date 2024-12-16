@@ -1,4 +1,7 @@
-import React, { useState } from 'react';
+import React, { FormEvent, useState } from 'react';
+import { useActions, useAppSelector } from '../../store/hooks';
+import { getAuthorizationStatus } from '../../store/selectors';
+import { AuthorizationStatus } from '../../types/auth';
 
 const CommentRating = {
   '5': 'perfect',
@@ -8,29 +11,51 @@ const CommentRating = {
   '1': 'terribly'
 } as const;
 
-const CommentForm: React.FC = () => {
-  type State = Partial<{
-    comment: string;
-    rating: number;
-  }>;
+type CommentFormProps = {
+  offerId: string;
+}
 
-  const [state, _setState] = useState({
-    comment: '',
-    rating: 0
-  });
-  const setState = (data: State) => _setState({...state, ...data});
+const CommentForm: React.FC<CommentFormProps> = ({ offerId }) => {
+  const [comment, setComment] = useState('');
+  const [rating, setRating] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { postComment } = useActions();
+  const authorizationStatus = useAppSelector(getAuthorizationStatus);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // eslint-disable-next-line no-console
-    console.log(state);
+  const handleSubmit = (evt: FormEvent) => {
+    evt.preventDefault();
+
+    if (comment.length >= 50 && rating > 0) {
+      setIsSubmitting(true);
+      try {
+        postComment({
+          offerId,
+          commentData: { comment, rating }
+        });
+        setComment('');
+        setRating(0);
+      } catch (error) {
+        // console.error('Failed to post comment:', error);
+      } finally {
+        setIsSubmitting(false);
+      }
+    }
   };
 
+  if (authorizationStatus !== AuthorizationStatus.Auth) {
+    return null;
+  }
+
   return (
-    <form className="reviews__form form" onSubmit={handleSubmit}>
+    <form
+      className="reviews__form form"
+      action="#"
+      method="post"
+      onSubmit={handleSubmit}
+    >
       <label className="reviews__label form__label" htmlFor="review">Your review</label>
       <div className="reviews__rating-form form__rating">
-        {Object.keys(CommentRating).map((star) => (
+        {Object.keys(CommentRating).reverse().map((star) => (
           <React.Fragment key={star}>
             <input
               className="form__rating-input visually-hidden"
@@ -38,7 +63,8 @@ const CommentForm: React.FC = () => {
               value={star}
               id={`${star}-stars`}
               type="radio"
-              onChange={() => setState({rating: Number.parseInt(star, 10)})}
+              checked={rating === Number(star)}
+              onChange={() => setRating(Number(star))}
             />
             <label
               htmlFor={`${star}-stars`}
@@ -58,8 +84,8 @@ const CommentForm: React.FC = () => {
         id="review"
         name="review"
         placeholder="Tell how was your stay, what you like and what can be improved"
-        value={state.comment}
-        onChange={(e) => setState({comment: e.target.value})}
+        value={comment}
+        onChange={(e) => setComment(e.target.value)}
       />
 
       <div className="reviews__button-wrapper">
@@ -69,7 +95,7 @@ const CommentForm: React.FC = () => {
         <button
           className="reviews__submit form__submit button"
           type="submit"
-          disabled={state.comment.length < 50 || state.rating === 0}
+          disabled={comment.length < 50 || rating === 0 || isSubmitting}
         >
           Submit
         </button>

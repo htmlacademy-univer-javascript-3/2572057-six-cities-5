@@ -21,3 +21,7 @@ export const getAllOffersSelector = (state: RootState) =>
 export const getAuthorizationStatus = (state: RootState) =>
   getStateSelector(state).authorizationStatus;
 export const getUser = (state: RootState) => getStateSelector(state).user;
+export const getCommentsSelector = (state: RootState) =>
+  getStateSelector(state).comments;
+export const getCommentsLoadingSelector = (state: RootState) =>
+  getStateSelector(state).isCommentsLoading;
