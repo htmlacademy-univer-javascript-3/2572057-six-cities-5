@@ -23,7 +23,7 @@ export const createAPI = (): AxiosInstance => {
 
   api.interceptors.response.use(
     (response) => response,
-    (error) => {
+    (error: {response: {status: StatusCodes}}) => {
       if (error.response?.status === StatusCodes.UNAUTHORIZED) {
         return Promise.reject(error);
       }
