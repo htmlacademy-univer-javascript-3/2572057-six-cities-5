@@ -20,6 +20,8 @@ export type Offer = {
   isPremium: boolean;
   rating: number;
   previewImage: string;
+  images?: string[];
+  goods?: string[];
 };
 
 export type User = {
