@@ -3,12 +3,13 @@ import React, { useEffect, useState } from 'react';
 import Map from '../../components/Map';
 import OfferCard from '../../components/OfferCard';
 import { useActions, useAppSelector } from '../../store/hooks.ts';
-import { getCitySelector, getOffersSelector } from '../../store/selectors';
+import { getCitySelector, getLoadingSelector, getOffersSelector } from '../../store/selectors';
 import type { Cities, Offer } from '../../types';
 
 import { NavLink } from 'react-router-dom';
 import CitiesList from '../../components/CitiesList';
 import SortingOptions from '../../components/SortingOptions';
+import Spinner from '../../components/Spinner';
 import './style.css';
 
 type MainPageProps = {
@@ -17,13 +18,18 @@ type MainPageProps = {
 
 const MainPage: React.FC<MainPageProps> = ({ cities }) => {
   const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null);
-  const cityOffers: Offer[] = useAppSelector(getOffersSelector);
+  const cityOffers = useAppSelector(getOffersSelector);
   const currentCity = useAppSelector(getCitySelector);
-  const { getOffers } = useActions();
+  const isLoading = useAppSelector(getLoadingSelector);
+  const { fetchOffers } = useActions();
 
   useEffect(() => {
-    getOffers(currentCity);
-  }, [getOffers, currentCity]);
+    fetchOffers();
+  }, [fetchOffers]);
+
+  if (isLoading) {
+    return <Spinner />;
+  }
 
   return (
     <div className="page page--gray page--main">
