@@ -22,7 +22,9 @@ export const commentsSlice = createSlice({
       state.commentsError = null;
     },
     fetchCommentsSuccess: (state, action: PayloadAction<Comment[]>) => {
-      state.comments = action.payload;
+      state.comments = action.payload.sort(
+        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+      );
       state.isCommentsLoading = false;
     },
     fetchCommentsFailure: (state, action: PayloadAction<string>) => {

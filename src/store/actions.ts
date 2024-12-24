@@ -4,7 +4,7 @@ import { dropToken, saveToken } from '../services/token';
 import type { Offer } from '../types';
 import type { AuthData, UserData } from '../types/auth';
 import { AuthorizationStatus } from '../types/auth';
-import type { Comment, CommentData } from '../types/comment';
+import type { CommentData } from '../types/comment';
 import { authSlice } from './slices/auth.slice';
 import { commentsSlice } from './slices/comments.slice';
 import { favoritesSlice } from './slices/favorites.slice';
@@ -181,14 +181,9 @@ export const postComment = createAsyncThunk<
 >(
   'comments/post',
   async ({ offerId, commentData }, { dispatch, extra: api }) => {
-    try {
-      await api.post(`/comments/${offerId}`, commentData);
-      const { data } = await api.get<Comment[]>(`/comments/${offerId}`) ;
-      dispatch(fetchCommentsSuccess(data));
-    } catch (error) {
-      console.error('Failed to post comment:', error);
-      throw error;
-    }
+    await api.post(`/comments/${offerId}`, commentData);
+    const { data } = await api.get<Comment[]>(`/comments/${offerId}`);
+    dispatch(fetchCommentsSuccess(data));
   }
 );
 
@@ -224,26 +219,21 @@ export const toggleFavorite = createAsyncThunk<
     extra: AxiosInstance;
   }
 >('favorites/toggle', async ({ offerId, status }, { dispatch, extra: api }) => {
-  try {
-    const { data } = await api.post<Offer>(`/favorite/${offerId}/${status}`);
+  const { data } = await api.post<Offer>(`/favorite/${offerId}/${status}`);
 
-    // Обновляем статус избранного в списке предложений
-    dispatch(
-      updateOfferFavoriteStatus({
-        offerId,
-        isFavorite: status === 1,
-      })
-    );
+  // Обновляем статус избранного в списке предложений
+  dispatch(
+    updateOfferFavoriteStatus({
+      offerId,
+      isFavorite: status === 1,
+    })
+  );
 
-    // Обновляем список избранного
-    if (status === 1) {
-      dispatch(addToFavorites(data));
-    } else {
-      dispatch(removeFromFavorites(offerId));
-    }
-  } catch (error) {
-    console.error('Failed to toggle favorite:', error);
-    throw error;
+  // Обновляем список избранного
+  if (status === 1) {
+    dispatch(addToFavorites(data));
+  } else {
+    dispatch(removeFromFavorites(offerId));
   }
 });
 

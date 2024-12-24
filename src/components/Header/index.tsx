@@ -1,20 +1,27 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useActions, useAppSelector } from '../../store/hooks';
-import { getAuthorizationStatus, getUser } from '../../store/selectors';
+import { getAuthorizationStatus, getFavoritesCountSelector, getUser } from '../../store/selectors';
 import { Endpoints } from '../../types.d';
 import { AuthorizationStatus } from '../../types/auth';
 
 const Header: React.FC = () => {
   const authorizationStatus = useAppSelector(getAuthorizationStatus);
   const user = useAppSelector(getUser);
-  const { logoutAction } = useActions();
+  const favoritesCount = useAppSelector(getFavoritesCountSelector);
+  const { logout, fetchFavorites } = useActions();
+
+  useEffect(() => {
+    if (authorizationStatus === AuthorizationStatus.Auth) {
+      fetchFavorites();
+    }
+  }, [authorizationStatus, fetchFavorites]);
 
   const handleSignOut = () => {
     try {
-      logoutAction();
+      logout();
     } catch (error) {
-    //   console.error('Logout failed:', error);
+      // console.error('Logout failed:', error);
     }
   };
 
@@ -37,7 +44,9 @@ const Header: React.FC = () => {
             className="header__nav-link"
             to={Endpoints.favorites}
           >
-            <span className="header__favorite-count" style={{ marginLeft: '0px', marginRight: '25px' }}>3</span>
+            <span className="header__favorite-count" style={{ marginLeft: '0px', marginRight: '25px' }}>
+              {favoritesCount}
+            </span>
           </Link>
           <li className="header__nav-item">
             <Link

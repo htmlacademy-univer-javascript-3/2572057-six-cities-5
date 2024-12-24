@@ -2,19 +2,40 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../../components/Header';
 import { useAppSelector } from '../../store/hooks';
-import { getAllOffersSelector } from '../../store/selectors';
+import { getFavoritesSelector } from '../../store/selectors';
 import type { Offer } from '../../types';
 
 const FavoritesPage: React.FC = () => {
-  const offers = useAppSelector(getAllOffersSelector);
+  const favorites = useAppSelector(getFavoritesSelector);
+
+  if (favorites.length === 0) {
+    return (
+      <div className="page">
+        <Header />
+        <main className="page__main page__main--favorites page__main--favorites-empty">
+          <div className="page__favorites-container container">
+            <section className="favorites favorites--empty">
+              <h1 className="visually-hidden">Favorites (empty)</h1>
+              <div className="favorites__status-wrapper">
+                <b className="favorites__status">Nothing yet saved.</b>
+                <p className="favorites__status-description">Save properties to narrow down search or plan your future trips.</p>
+              </div>
+            </section>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   // Group offers by city
-  const offersByCity = offers.reduce<{ [key: string]: Offer[] }>((acc, offer) => {
-    const cityName = offer.city.name;
-    if (!acc[cityName]) {
-      acc[cityName] = [];
+  const offersByCity = favorites.reduce<{ [key: string]: Offer[] }>((acc, offer) => {
+    if (offer.isFavorite) { // Only include favorite offers
+      const cityName = offer.city.name;
+      if (!acc[cityName]) {
+        acc[cityName] = [];
+      }
+      acc[cityName].push(offer);
     }
-    acc[cityName].push(offer);
     return acc;
   }, {});
 
@@ -31,7 +52,7 @@ const FavoritesPage: React.FC = () => {
                 <li className="favorites__locations-items" key={cityName}>
                   <div className="favorites__locations locations locations--current">
                     <div className="locations__item">
-                      <Link className="locations__item-link" to="#">
+                      <Link className="locations__item-link" to="/">
                         <span>{cityName}</span>
                       </Link>
                     </div>
