@@ -10,11 +10,13 @@ import Spinner from '../../components/Spinner';
 import { useActions, useAppSelector } from '../../store/hooks';
 import {
   getAllOffersSelector,
+  getAuthorizationStatus,
   getCurrentOfferSelector,
   getOfferErrorSelector,
   getOfferLoadingSelector,
 } from '../../store/selectors';
 import type { Offer } from '../../types.d';
+import { AuthorizationStatus } from '../../types/auth';
 
 const OfferPage: React.FC = () => {
   const { id } = useParams();
@@ -23,7 +25,8 @@ const OfferPage: React.FC = () => {
   const allOffers = useAppSelector(getAllOffersSelector);
   const isLoading = useAppSelector(getOfferLoadingSelector);
   const error = useAppSelector(getOfferErrorSelector);
-  const { fetchOffer, fetchComments } = useActions();
+  const authorizationStatus = useAppSelector(getAuthorizationStatus);
+  const { fetchOffer, fetchComments, toggleFavorite } = useActions();
 
   useEffect(() => {
     if (id) {
@@ -60,6 +63,22 @@ const OfferPage: React.FC = () => {
     return <Navigate to="/404" />;
   }
 
+  const handleFavoriteClick = () => {
+    if (authorizationStatus !== AuthorizationStatus.Auth) {
+      navigate('/login');
+      return;
+    }
+
+    try {
+      toggleFavorite({
+        offerId: currentOffer.id,
+        status: currentOffer.isFavorite ? 0 : 1,
+      });
+    } catch (err) {
+      // console.error('Failed to toggle favorite:', err);
+    }
+  };
+
   return (
     <div className="page">
       <Header />
@@ -69,7 +88,7 @@ const OfferPage: React.FC = () => {
           <div className="offer__gallery-container container">
             <div className="offer__gallery">
               {currentOffer.images?.map((image, index) => (
-                <div key={index} className="offer__image-wrapper">
+                <div key={image} className="offer__image-wrapper">
                   <img className="offer__image" src={image} alt={`Photo ${index + 1}`} />
                 </div>
               ))}
@@ -85,7 +104,11 @@ const OfferPage: React.FC = () => {
               )}
               <div className="offer__name-wrapper">
                 <h1 className="offer__name">{currentOffer.title}</h1>
-                <button className="offer__bookmark-button button" type="button">
+                <button
+                  className={`offer__bookmark-button ${currentOffer.isFavorite ? 'offer__bookmark-button--active' : ''} button`}
+                  type="button"
+                  onClick={handleFavoriteClick}
+                >
                   <svg className="offer__bookmark-icon" width="31" height="33">
                     <use xlinkHref="#icon-bookmark"></use>
                   </svg>
@@ -111,8 +134,8 @@ const OfferPage: React.FC = () => {
               <div className="offer__inside">
                 <h2 className="offer__inside-title">What&apos;s inside</h2>
                 <ul className="offer__inside-list">
-                  {currentOffer.goods?.map((item, index) => (
-                    <li key={index} className="offer__inside-item">{item}</li>
+                  {currentOffer.goods?.map((item) => (
+                    <li key={item} className="offer__inside-item">{item}</li>
                   ))}
                 </ul>
               </div>

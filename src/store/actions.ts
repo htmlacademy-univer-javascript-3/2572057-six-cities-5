@@ -1,59 +1,47 @@
-import { createAction, createAsyncThunk } from '@reduxjs/toolkit';
+import { createAsyncThunk } from '@reduxjs/toolkit';
 import { AxiosInstance } from 'axios';
-import { SortType } from '../components/SortingOptions';
 import { dropToken, saveToken } from '../services/token';
-import { City, Offer } from '../types';
-import { AuthData, AuthorizationStatus, UserData } from '../types/auth';
-import type { Comment, CommentData } from '../types/comment';
+import type { Offer } from '../types';
+import type { AuthData, UserData } from '../types/auth';
+import { AuthorizationStatus } from '../types/auth';
+import type { CommentData } from '../types/comment';
+import { authSlice } from './slices/auth.slice';
+import { commentsSlice } from './slices/comments.slice';
+import { favoritesSlice } from './slices/favorites.slice';
+import { offersSlice } from './slices/offers.slice';
 import { AppDispatch, RootState } from './types';
 
-const Actions = {
-  fetchOffersStart: 'offers/fetchStart',
-  fetchOffersSuccess: 'offers/fetchSuccess',
-  fetchOffersFailure: 'offers/fetchFailure',
-  fetchOfferStart: 'offer/fetchStart',
-  fetchOfferSuccess: 'offer/fetchSuccess',
-  fetchOfferFailure: 'offer/fetchFailure',
-  changeCity: 'change-city',
-  sortOffers: 'sort-offers',
-  requireAuthorization: 'user/requireAuthorization',
-  setUser: 'user/setUser',
-  logout: 'user/logout',
-  fetchCommentsStart: 'comments/fetchStart',
-  fetchCommentsSuccess: 'comments/fetchSuccess',
-  fetchCommentsFailure: 'comments/fetchFailure',
-  postCommentStart: 'comments/postStart',
-  postCommentSuccess: 'comments/postSuccess',
-  postCommentFailure: 'comments/postFailure',
-} as const;
+// Destructure actions from slices
+const {
+  fetchOffersStart,
+  fetchOffersSuccess,
+  fetchOffersFailure,
+  fetchOfferStart,
+  fetchOfferSuccess,
+  fetchOfferFailure,
+  changeCity,
+  sortOffers,
+  updateOfferFavoriteStatus,
+} = offersSlice.actions;
 
-export const fetchOffersStart = createAction(Actions.fetchOffersStart);
-export const fetchOffersSuccess = createAction<Offer[]>(
-  Actions.fetchOffersSuccess
-);
-export const fetchOffersFailure = createAction<string>(
-  Actions.fetchOffersFailure
-);
-export const fetchOfferStart = createAction(Actions.fetchOfferStart);
-export const fetchOfferSuccess = createAction<Offer>(Actions.fetchOfferSuccess);
-export const fetchOfferFailure = createAction<string>(
-  Actions.fetchOfferFailure
-);
-export const changeCity = createAction<City>(Actions.changeCity);
-export const sortOffers = createAction<SortType>(Actions.sortOffers);
-export const requireAuthorization = createAction<AuthorizationStatus>(
-  Actions.requireAuthorization
-);
-export const setUser = createAction<UserData>(Actions.setUser);
-export const logout = createAction(Actions.logout);
-export const fetchCommentsStart = createAction(Actions.fetchCommentsStart);
-export const fetchCommentsSuccess = createAction<Comment[]>(
-  Actions.fetchCommentsSuccess
-);
-export const fetchCommentsFailure = createAction<string>(
-  Actions.fetchCommentsFailure
-);
+const {
+  requireAuthorization,
+  setUser,
+  logout: logoutAction,
+} = authSlice.actions;
 
+const { fetchCommentsStart, fetchCommentsSuccess, fetchCommentsFailure } =
+  commentsSlice.actions;
+
+const {
+  fetchFavoritesStart,
+  fetchFavoritesSuccess,
+  fetchFavoritesFailure,
+  addToFavorites,
+  removeFromFavorites,
+} = favoritesSlice.actions;
+
+// Async thunks
 export const fetchOffers = createAsyncThunk<
   void,
   undefined,
@@ -138,7 +126,7 @@ export const login = createAsyncThunk<
   }
 );
 
-export const logoutAction = createAsyncThunk<
+export const logout = createAsyncThunk<
   void,
   undefined,
   {
@@ -151,11 +139,11 @@ export const logoutAction = createAsyncThunk<
     await api.delete('/logout');
     dropToken();
     dispatch(requireAuthorization(AuthorizationStatus.NoAuth));
-    dispatch(logout());
+    dispatch(logoutAction());
   } catch (error) {
     dropToken();
     dispatch(requireAuthorization(AuthorizationStatus.NoAuth));
-    dispatch(logout());
+    dispatch(logoutAction());
     throw error;
   }
 });
@@ -193,16 +181,82 @@ export const postComment = createAsyncThunk<
 >(
   'comments/post',
   async ({ offerId, commentData }, { dispatch, extra: api }) => {
-    try {
-      await api.post<Comment[]>(`/comments/${offerId}`, {
-        comment: commentData.comment,
-        rating: commentData.rating,
-      });
-      const { data } = await api.get<Comment[]>(`/comments/${offerId}`);
-      dispatch(fetchCommentsSuccess(data));
-    } catch (error) {
-      console.error('Failed to post comment:', error);
-      throw error;
-    }
+    await api.post(`/comments/${offerId}`, commentData);
+    const { data } = await api.get<Comment[]>(`/comments/${offerId}`);
+    dispatch(fetchCommentsSuccess(data));
   }
 );
+
+export const fetchFavorites = createAsyncThunk<
+  void,
+  undefined,
+  {
+    dispatch: AppDispatch;
+    state: RootState;
+    extra: AxiosInstance;
+  }
+>('favorites/fetch', async (_arg, { dispatch, extra: api }) => {
+  try {
+    dispatch(fetchFavoritesStart());
+    const { data } = await api.get<Offer[]>('/favorite');
+    const favorites = data.filter((offer) => offer.isFavorite);
+    dispatch(fetchFavoritesSuccess(favorites));
+  } catch (error) {
+    dispatch(
+      fetchFavoritesFailure(
+        error instanceof Error ? error.message : 'Failed to load favorites'
+      )
+    );
+  }
+});
+
+export const toggleFavorite = createAsyncThunk<
+  void,
+  { offerId: string; status: number },
+  {
+    dispatch: AppDispatch;
+    state: RootState;
+    extra: AxiosInstance;
+  }
+>('favorites/toggle', async ({ offerId, status }, { dispatch, extra: api }) => {
+  const { data } = await api.post<Offer>(`/favorite/${offerId}/${status}`);
+
+  // Обновляем статус избранного в списке предложений
+  dispatch(
+    updateOfferFavoriteStatus({
+      offerId,
+      isFavorite: status === 1,
+    })
+  );
+
+  // Обновляем список избранного
+  if (status === 1) {
+    dispatch(addToFavorites(data));
+  } else {
+    dispatch(removeFromFavorites(offerId));
+  }
+});
+
+// Re-export actions from slices for direct use
+export {
+  addToFavorites,
+  changeCity,
+  fetchCommentsFailure,
+  fetchCommentsStart,
+  fetchCommentsSuccess,
+  fetchFavoritesFailure,
+  fetchFavoritesStart,
+  fetchFavoritesSuccess,
+  fetchOfferFailure,
+  fetchOffersFailure,
+  fetchOffersStart,
+  fetchOffersSuccess,
+  fetchOfferStart,
+  fetchOfferSuccess,
+  logoutAction,
+  removeFromFavorites,
+  requireAuthorization,
+  setUser,
+  sortOffers,
+  updateOfferFavoriteStatus,
+};

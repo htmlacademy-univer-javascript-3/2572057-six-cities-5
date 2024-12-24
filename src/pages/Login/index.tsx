@@ -1,7 +1,9 @@
 import React, { FormEvent, useRef } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { CITIES } from '../../mocks/city';
 import { useActions, useAppSelector } from '../../store/hooks';
 import { getAuthorizationStatus } from '../../store/selectors';
+import { Cities } from '../../types';
 import { Endpoints } from '../../types.d';
 import { AuthorizationStatus } from '../../types/auth';
 
@@ -10,6 +12,13 @@ const LoginPage: React.FC = () => {
   const passwordRef = useRef<HTMLInputElement>(null);
   const { login } = useActions();
   const authorizationStatus = useAppSelector(getAuthorizationStatus);
+  const navigate = useNavigate();
+
+  const randomCity = React.useMemo(() => {
+    const cities = Object.keys(CITIES) as Cities[];
+    const randomIndex = Math.floor(Math.random() * cities.length);
+    return cities[randomIndex];
+  }, []);
 
   const handleSubmit = (evt: FormEvent<HTMLFormElement>) => {
     evt.preventDefault();
@@ -37,7 +46,7 @@ const LoginPage: React.FC = () => {
         <div className="container">
           <div className="header__wrapper">
             <div className="header__left">
-              <a className="header__logo-link" href="main.html">
+              <Link className="header__logo-link" to="/">
                 <img
                   className="header__logo"
                   src="img/logo.svg"
@@ -45,7 +54,7 @@ const LoginPage: React.FC = () => {
                   width="81"
                   height="41"
                 />
-              </a>
+              </Link>
             </div>
           </div>
         </div>
@@ -90,9 +99,16 @@ const LoginPage: React.FC = () => {
           </section>
           <section className="locations locations--login locations--current">
             <div className="locations__item">
-              <a className="locations__item-link" href="#">
-                <span>Amsterdam</span>
-              </a>
+              <Link
+                className="locations__item-link"
+                to="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate('/', { state: { city: randomCity } });
+                }}
+              >
+                <span>{randomCity}</span>
+              </Link>
             </div>
           </section>
         </div>
