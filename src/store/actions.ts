@@ -4,7 +4,7 @@ import { dropToken, saveToken } from '../services/token';
 import type { Offer } from '../types';
 import type { AuthData, UserData } from '../types/auth';
 import { AuthorizationStatus } from '../types/auth';
-import type { CommentData } from '../types/comment';
+import type { Comment, CommentData } from '../types/comment';
 import { authSlice } from './slices/auth.slice';
 import { commentsSlice } from './slices/comments.slice';
 import { favoritesSlice } from './slices/favorites.slice';
@@ -50,17 +50,15 @@ export const fetchOffers = createAsyncThunk<
     state: RootState;
     extra: AxiosInstance;
   }
->('offers/fetch', async (_arg, { dispatch, extra: api }) => {
+>('offers/fetchOffers', async (_, { dispatch, extra: api }) => {
+  dispatch(fetchOffersStart());
   try {
-    dispatch(fetchOffersStart());
-    const { data } = await api.get<Offer[]>('/offers');
-    dispatch(fetchOffersSuccess(data));
+    const response = await api.get<Offer[]>('/offers');
+    dispatch(fetchOffersSuccess(response.data));
   } catch (error) {
-    dispatch(
-      fetchOffersFailure(
-        error instanceof Error ? error.message : 'Failed to load offers'
-      )
-    );
+    const message =
+      error instanceof Error ? error.message : 'Failed to load offers';
+    dispatch(fetchOffersFailure(message));
   }
 });
 
