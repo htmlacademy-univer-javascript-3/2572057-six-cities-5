@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { SortType } from '../../components/SortingOptions';
 import { CITIES } from '../../mocks/city';
 import type { City, Offer } from '../../types';
+import { SortType } from '../../types/sort';
 
 type OffersState = {
   city: City;
@@ -113,9 +113,6 @@ export const {
   fetchOffersFailure,
   changeCity,
   sortOffers,
-  fetchOfferStart,
-  fetchOfferSuccess,
-  fetchOfferFailure,
   updateOfferFavoriteStatus,
 } = offersSlice.actions;
 

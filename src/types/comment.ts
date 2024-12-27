@@ -1,4 +1,4 @@
-export type Comment = {
+export interface Comment {
   id: string;
   comment: string;
   date: string;
@@ -8,9 +8,9 @@ export type Comment = {
     avatarUrl: string;
     isPro: boolean;
   };
-};
+}
 
-export type CommentData = {
+export interface CommentData {
   comment: string;
   rating: number;
-};
+}
