@@ -219,7 +219,7 @@ export const toggleFavorite = createAsyncThunk<
 >('favorites/toggle', async ({ offerId, status }, { dispatch, extra: api }) => {
   const { data } = await api.post<Offer>(`/favorite/${offerId}/${status}`);
 
-  // Обновляем статус избранного в списке предложений
+  // Update offer status in all relevant places
   dispatch(
     updateOfferFavoriteStatus({
       offerId,
@@ -227,12 +227,16 @@ export const toggleFavorite = createAsyncThunk<
     })
   );
 
-  // Обновляем список избранного
+  // Update favorites list
   if (status === 1) {
     dispatch(addToFavorites(data));
   } else {
     dispatch(removeFromFavorites(offerId));
   }
+
+  // Refresh favorites list to ensure consistency
+  dispatch(fetchFavorites());
+
 });
 
 // Re-export actions from slices for direct use

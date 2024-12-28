@@ -1,19 +1,18 @@
-import axios from 'axios';
 import React, { useEffect } from 'react';
-import { Navigate, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import CommentForm from '../../components/CommentForm';
 import Header from '../../components/Header';
 import Map from '../../components/Map';
 import OffersList from '../../components/OffersList';
 import ReviewsList from '../../components/ReviewsList';
 import Spinner from '../../components/Spinner';
-import { useActions, useAppSelector } from '../../store/hooks';
+import { fetchComments, fetchOffer } from '../../store/actions';
+import { useActions, useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
   getAllOffersSelector,
   getAuthorizationStatus,
   getCurrentOfferSelector,
-  getOfferErrorSelector,
-  getOfferLoadingSelector,
+  getOfferLoadingSelector
 } from '../../store/selectors';
 import type { Offer } from '../../types.d';
 import { AuthorizationStatus } from '../../types/auth';
@@ -21,32 +20,36 @@ import { AuthorizationStatus } from '../../types/auth';
 const OfferPage: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const currentOffer = useAppSelector(getCurrentOfferSelector);
   const allOffers = useAppSelector(getAllOffersSelector);
   const isLoading = useAppSelector(getOfferLoadingSelector);
-  const error = useAppSelector(getOfferErrorSelector);
   const authorizationStatus = useAppSelector(getAuthorizationStatus);
-  const { fetchOffer, fetchComments, toggleFavorite } = useActions();
+  const { toggleFavorite } = useActions();
 
   useEffect(() => {
     if (id) {
       Promise.all([
-        fetchOffer(id),
-        fetchComments(id)
-      ]).catch((err) => {
-        if (axios.isAxiosError(err) && err.response?.status === 404) {
-          navigate('/404');
-        } else {
-          // console.error('Error fetching offer:', err);
-        }
+        dispatch(fetchOffer(id)),
+        dispatch(fetchComments(id))
+      ]).catch(() => {
+        navigate('/404');
       });
     }
-  }, [id, fetchOffer, fetchComments, navigate]);
+  }, [id, dispatch, navigate]);
 
+  // Show spinner while loading
   if (isLoading) {
     return <Spinner />;
   }
 
+  // Redirect to 404 if offer not found
+  if (!currentOffer && !isLoading) {
+    navigate('/404');
+    return null;
+  }
+
+  // Safety check - shouldn't happen but TypeScript will be happy
   if (!currentOffer) {
     return null;
   }
@@ -58,10 +61,6 @@ const OfferPage: React.FC = () => {
         offer.city.name === currentOffer.city.name && offer.id !== currentOffer.id
     )
     .slice(0, 3);
-
-  if (error) {
-    return <Navigate to="/404" />;
-  }
 
   const handleFavoriteClick = () => {
     if (authorizationStatus !== AuthorizationStatus.Auth) {
