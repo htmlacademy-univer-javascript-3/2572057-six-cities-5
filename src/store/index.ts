@@ -11,6 +11,7 @@ const store = configureStore({
       thunk: {
         extraArgument: api,
       },
+      serializableCheck: false,
     }),
 });
 

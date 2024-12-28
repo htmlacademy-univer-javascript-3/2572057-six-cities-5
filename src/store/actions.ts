@@ -4,7 +4,7 @@ import { dropToken, saveToken } from '../services/token';
 import type { Offer } from '../types';
 import type { AuthData, UserData } from '../types/auth';
 import { AuthorizationStatus } from '../types/auth';
-import type { CommentData } from '../types/comment';
+import type { Comment, CommentData } from '../types/comment';
 import { authSlice } from './slices/auth.slice';
 import { commentsSlice } from './slices/comments.slice';
 import { favoritesSlice } from './slices/favorites.slice';
@@ -50,17 +50,15 @@ export const fetchOffers = createAsyncThunk<
     state: RootState;
     extra: AxiosInstance;
   }
->('offers/fetch', async (_arg, { dispatch, extra: api }) => {
+>('offers/fetchOffers', async (_, { dispatch, extra: api }) => {
+  dispatch(fetchOffersStart());
   try {
-    dispatch(fetchOffersStart());
-    const { data } = await api.get<Offer[]>('/offers');
-    dispatch(fetchOffersSuccess(data));
+    const response = await api.get<Offer[]>('/offers');
+    dispatch(fetchOffersSuccess(response.data));
   } catch (error) {
-    dispatch(
-      fetchOffersFailure(
-        error instanceof Error ? error.message : 'Failed to load offers'
-      )
-    );
+    const message =
+      error instanceof Error ? error.message : 'Failed to load offers';
+    dispatch(fetchOffersFailure(message));
   }
 });
 
@@ -221,7 +219,7 @@ export const toggleFavorite = createAsyncThunk<
 >('favorites/toggle', async ({ offerId, status }, { dispatch, extra: api }) => {
   const { data } = await api.post<Offer>(`/favorite/${offerId}/${status}`);
 
-  // Обновляем статус избранного в списке предложений
+  // Update offer status in all relevant places
   dispatch(
     updateOfferFavoriteStatus({
       offerId,
@@ -229,12 +227,16 @@ export const toggleFavorite = createAsyncThunk<
     })
   );
 
-  // Обновляем список избранного
+  // Update favorites list
   if (status === 1) {
     dispatch(addToFavorites(data));
   } else {
     dispatch(removeFromFavorites(offerId));
   }
+
+  // Refresh favorites list to ensure consistency
+  dispatch(fetchFavorites());
+
 });
 
 // Re-export actions from slices for direct use

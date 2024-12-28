@@ -20,7 +20,7 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
   return authorizationStatus === AuthorizationStatus.Auth ? (
     children
   ) : (
-    <Navigate to={Endpoints.root} />
+    <Navigate to={Endpoints.login} />
   );
 };
 

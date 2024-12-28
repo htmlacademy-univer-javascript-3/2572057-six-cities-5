@@ -44,6 +44,7 @@ export const favoritesSlice = createSlice({
       state.favorites = state.favorites.filter(
         (offer) => offer.id !== action.payload
       );
+      state.isLoading = false;
     },
   },
 });
